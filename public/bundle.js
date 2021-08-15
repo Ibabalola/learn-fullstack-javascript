@@ -1842,7 +1842,8 @@ module.exports = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "fetchContest": () => (/* binding */ fetchContest)
+/* harmony export */   "fetchContest": () => (/* binding */ fetchContest),
+/* harmony export */   "fetchContestList": () => (/* binding */ fetchContestList)
 /* harmony export */ });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
@@ -1850,6 +1851,11 @@ __webpack_require__.r(__webpack_exports__);
 var fetchContest = function fetchContest(contestId) {
   return axios__WEBPACK_IMPORTED_MODULE_0___default().get("/api/contests/".concat(contestId)).then(function (res) {
     return res.data;
+  });
+};
+var fetchContestList = function fetchContestList() {
+  return axios__WEBPACK_IMPORTED_MODULE_0___default().get('/api/contests').then(function (res) {
+    return res.data.contests;
   });
 };
 
@@ -1874,6 +1880,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Contest__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Contest */ "./src/components/Contest.js");
 /* harmony import */ var _Header__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Header */ "./src/components/Header.js");
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
@@ -1912,6 +1920,10 @@ var pushState = function pushState(obj, url) {
   return window.history.pushState(obj, '', url);
 };
 
+var onPopState = function onPopState(handler) {
+  return window.onpopstate = handler;
+};
+
 var App = /*#__PURE__*/function (_Component) {
   _inherits(App, _Component);
 
@@ -1930,7 +1942,7 @@ var App = /*#__PURE__*/function (_Component) {
 
     _defineProperty(_assertThisInitialized(_this), "state", _this.props.initialData);
 
-    _defineProperty(_assertThisInitialized(_this), "fetchContest", function (contestId) {
+    _defineProperty(_assertThisInitialized(_this), "doFetchContest", function (contestId) {
       pushState({
         currentContestId: contestId
       }, "/contest/".concat(contestId));
@@ -1938,6 +1950,18 @@ var App = /*#__PURE__*/function (_Component) {
         _this.setState({
           currentContestId: contestId,
           contests: _objectSpread(_objectSpread({}, _this.state.contests), {}, _defineProperty({}, contest.id, contest))
+        });
+      });
+    });
+
+    _defineProperty(_assertThisInitialized(_this), "doFetchContestList", function () {
+      pushState({
+        currentContestId: null
+      }, '/');
+      (0,_api__WEBPACK_IMPORTED_MODULE_2__.fetchContestList)().then(function (contests) {
+        _this.setState({
+          currentContestId: null,
+          contests: contests
         });
       });
     });
@@ -1951,8 +1975,10 @@ var App = /*#__PURE__*/function (_Component) {
     });
 
     _defineProperty(_assertThisInitialized(_this), "currentContent", function () {
-      return _this.state.currentContestId ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Contest__WEBPACK_IMPORTED_MODULE_4__.default, _this.currentContest()) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ContestList__WEBPACK_IMPORTED_MODULE_3__.default, {
-        onContestClick: _this.fetchContest,
+      return _this.state.currentContestId ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_Contest__WEBPACK_IMPORTED_MODULE_4__.default, _extends({
+        contestListClick: _this.doFetchContestList
+      }, _this.currentContest())) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_ContestList__WEBPACK_IMPORTED_MODULE_3__.default, {
+        onContestClick: _this.doFetchContest,
         contests: _this.state.contests
       });
     });
@@ -1962,11 +1988,21 @@ var App = /*#__PURE__*/function (_Component) {
 
   _createClass(App, [{
     key: "componentDidMount",
-    value: function componentDidMount() {// timers, listeners and ajax calls
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      // timers, listeners and ajax calls
+      onPopState(function (event) {
+        _this2.setState({
+          currentContestId: (event.state || {}).currentContestId
+        });
+      });
     }
   }, {
     key: "componentWillUnmount",
-    value: function componentWillUnmount() {// clean timers, listeners
+    value: function componentWillUnmount() {
+      // clean timers, listeners
+      onPopState(null);
     }
   }, {
     key: "render",
@@ -2043,9 +2079,15 @@ var Contest = /*#__PURE__*/function (_Component) {
   _createClass(Contest, [{
     key: "render",
     value: function render() {
+      var contestListClick = this.props.contestListClick;
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
         className: "Contest"
-      }, this.props.description);
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+        className: "contest-description"
+      }, this.props.description), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+        className: "home-link link",
+        onClick: contestListClick
+      }, "Contest List"));
     }
   }]);
 
@@ -2053,7 +2095,8 @@ var Contest = /*#__PURE__*/function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0__.Component);
 
 Contest.propTypes = {
-  description: (prop_types__WEBPACK_IMPORTED_MODULE_1___default().string.isRequired)
+  description: (prop_types__WEBPACK_IMPORTED_MODULE_1___default().string.isRequired),
+  contestListClick: (prop_types__WEBPACK_IMPORTED_MODULE_1___default().func.isRequired)
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Contest);
 
