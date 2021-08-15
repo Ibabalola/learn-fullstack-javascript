@@ -50,12 +50,12 @@ server.use(
 server.set('view engine', 'ejs');
 
 // server rendered react code from back end
-server.get('/', (req, res) => {
+server.get(['/', '/contest/:contestId'], (req, res) => {
   //res.send('Hello Express');
   // res.render('index', {
   //   content: 'Hello Express <em>EJS!</em>',
   // });
-  serverRender()
+  serverRender(req.params.contestId)
     .then(({ initialMarkup, initialData }) => {
       res.render('index', {
         initialMarkup,

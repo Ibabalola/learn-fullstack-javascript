@@ -11,6 +11,7 @@
 #### Front End
 - react: to build the user interface
 - react-dom: to render those interface on both the front end and the back end
+- prop-types: component validation
 - axios: communication with the backend
 
 ### Development dependencies:
