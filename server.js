@@ -4,6 +4,9 @@ import express from 'express';
 import fs from 'fs';
 import config, { nodeEnv, logStars } from './config';
 import api from './api';
+import sassMiddleware from 'node-sass-middleware';
+import path from 'path';
+import serverRender from './serverRender';
 
 // console.log(config, nodeEnv);
 // logStars('Hello World');
@@ -35,14 +38,31 @@ import api from './api';
 
 const server = express();
 
+// have sass file available upon page load using middleware
+server.use(
+  sassMiddleware({
+    src: path.join(__dirname, 'sass'),
+    dest: path.join(__dirname, 'public'),
+  })
+);
+
 // set view engine to be EJS
 server.set('view engine', 'ejs');
 
+// server rendered react code from back end
 server.get('/', (req, res) => {
   //res.send('Hello Express');
-  res.render('index', {
-    content: 'Hello Express <em>EJS!</em>'
-  });
+  // res.render('index', {
+  //   content: 'Hello Express <em>EJS!</em>',
+  // });
+  serverRender()
+    .then(({ initialMarkup, initialData }) => {
+      res.render('index', {
+        initialMarkup,
+        data: initialData,
+      });
+    })
+    .catch(console.error);
 });
 
 // group of routes
@@ -57,6 +77,6 @@ server.use(express.static('public'));
 //   });
 // });
 
-server.listen(config.port, () => {
+server.listen(config.port, config.host, () => {
   console.info('Express listening on port', config.port);
 });

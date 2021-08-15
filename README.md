@@ -5,10 +5,13 @@
 #### Back End
 - express: for a Node Server
 - mongodb: driver that connects Node to MongoDb
+- node-sass-middleware: have sass file available upon page load using middleware
+- react-dom/server: enables the rendering of components to static markup
 
 #### Front End
 - react: to build the user interface
 - react-dom: to render those interface on both the front end and the back end
+- axios: communication with the backend
 
 ### Development dependencies:
 - webpack: a bundler to translate modular code into code that is understood by the browser
