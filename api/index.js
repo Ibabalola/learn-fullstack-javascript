@@ -7,7 +7,6 @@ import config from '../config';
 let mdb;
 MongoClient.connect(config.mongodbUri, (err, client) => {
   assert.equal(null, err);
-  console.log('connection made with the db...');
   mdb = client.db(config.dbName);
 });
 
