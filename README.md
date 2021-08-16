@@ -7,6 +7,7 @@
 - mongodb: driver that connects Node to MongoDb
 - node-sass-middleware: have sass file available upon page load using middleware
 - react-dom/server: enables the rendering of components to static markup
+- body-parser: Node.js body parsing middleware
 
 #### Front End
 - react: to build the user interface
